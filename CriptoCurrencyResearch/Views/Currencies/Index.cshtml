@@ -1,0 +1,85 @@
+﻿@model IEnumerable<CriptoCurrencyResearch.Models.Currency>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<br />
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+
+<div>
+    <div class="col-lg-6 well">
+        @await Component.InvokeAsync("Currencies")
+    </div>
+    <div class="col-lg-6">
+        <partial name="_Graph" />
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+
+<script>
+    function GetCurrencies(data) {
+        var quantity = 0;
+        var currencies = [];
+
+        while (quantity < data.length) {
+            currencies.push(data[quantity].name);
+            quantity++;
+
+        }
+        return currencies;
+    }
+    function GetQuantities(data) {
+        var quantity = 0;
+        var values = [];
+
+        while (quantity < data.length) {
+            values.push(data[quantity].quantity);
+            quantity++;
+        }
+        return values;
+    }
+    function GetColors(quantity) {
+        var colors = [];
+
+        while (quantity > 0) {
+            var r = Math.floor(Math.random() * 255);
+            var g = Math.floor(Math.random() * 255);
+            var b = Math.floor(Math.random() * 255);
+            colors.push("rgb(" + r + ", " + g + "," + b + ")");
+            quantity--;
+        }
+        return colors;
+    }
+    $.ajax({
+        type: "GET",
+        url: "Currencies/GraphData",
+        success: function (data) {
+
+            new Chart(document.getElementById("graph"), {
+                type: 'pie',
+                data: {
+                    labels: GetCurrencies(data),
+                    datasets: [{
+                        labels: "Quantity",
+                        borderWidth: 2,
+                        backgroundColor: GetColors(data.length),
+                        data: GetQuantities(data)
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: "Quantity in each currency"
+                    }
+                }
+            });
+        }
+
+    })
+</script>
+
